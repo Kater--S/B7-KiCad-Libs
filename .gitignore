@@ -4,9 +4,10 @@ partsdb-midnight-worker-de.kicad_httplib
 .DS_Store
 
 template/B7Template/B7Template-backups/
+template/B7Template/fp-info-cache
 
 *.lck
 
 test/B7Test/B7Test-backups/
-
 test/B7Test/fp-info-cache
+
