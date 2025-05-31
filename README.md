@@ -29,7 +29,7 @@ Basis-Repository für die B7-Elektronikentwicklung
 5. In `libs`: Template für `partd.kicad_httplib` kopieren und API Key aus PartDB eintragen
 6. Ein Projekt öffnen, etwa `test/B7Test` oder `template/B7Template`
 	- Darin sind die passenden Library-Einstellungen bereits vorgenommen:
-		-in KiCad: Preferences -> Manage Symbol Libraries…:
+		- in KiCad: Preferences -> Manage Symbol Libraries…:
 			- Project Specific Library `B7_Symbols` als Typ `KiCad` eintragen, Pfad ist `${KICAD_3RD_PARTY}/B7-KiCad-Libs/libs/B7.kicad_sym`; Description ist `B7 symbols`
 			- Project Specific Library `B7_PartDB` als Typ `HTTP` eintragen, Pfad ist `${KICAD_3RD_PARTY}/B7-KiCad-Libs/libs/B7.kicad_sym`; Description ist `B7 PartDB`
 		- in KiCad: Preferences -> Manage Footprint Libraries…:
