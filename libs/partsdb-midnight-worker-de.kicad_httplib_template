@@ -1,0 +1,13 @@
+{
+ "meta": {
+     "version": 1.0
+ },
+ "name": "Part-DB library",
+ "description": "This KiCAD library fetches information externally from partdb.midnight-worker.de",
+ "source": {
+     "type": "REST_API",
+     "api_version": "v1",
+     "root_url": "http://partdb.midnight-worker.de/en/kicad-api/",
+     "token": "<INSERT TOKEN HERE>"
+ }
+}    
