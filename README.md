@@ -56,14 +56,14 @@ Basis-Repository für die B7-Elektronikentwicklung
 - Mechanismus zur Übernahme der LCSC-/JLCPCB-Teilenummer → PartDB und weiter von PartDB → KiCad – so, dass das Fabrication Toolkit sie erkennt und nutzt 
   → derzeit im ersten Schritt manueller Eintrag und im zweiten Schritt durch Patch des Plugins.
 - Noch zu klären: Wie funktioniert die Definition von Array-Bauteilen, also bspw. Widerstandsarrays oder Mehrfachgattern?
+- Noch zu testen: Kompletter Workflow bis hin zu den erzeugten Artefakten für die Produktion.
+
 
 ## Verwendung
 
-- Projekt anlegen: Template-Projekt laden, mit File → Save As… als neues Projekt speichern und dies als Repository anlegen
+- Projekt anlegen: Template-Projekt laden, mit *File → Save As…* als neues Projekt speichern und dies als Repository anlegen
 - vorhandenes B7-Bauteil verwenden: auswählen aus B7-Lib
-- neues B7-Bauteil anlegen:
-	- PartDB: TBD
-	- KiCad: TBD
+- neues B7-Bauteil anlegen: siehe folgenden Abschnitt
 
 
 ## Neues Bauteil anlegen
@@ -86,15 +86,15 @@ Exemplarisch soll das ESD-Schutzarray aus Zeile 10 ( = lfd.Nr.) eingepflegt werd
 
 In der Oberfläche von PartDB wird jetzt aus der linken Seitenleiste *Tools → Create parts from info provider* geklickt. 
 
-Im entsprechenden Formular wird jetzt unter *Keyword* die LCSC-Teilenummer `C2443674` eingetragen und unter *Providers* `LCSC`. Ein Klick auf den Button *Search* listet als Resultat das gewünschte Bauteil.
+Im entsprechenden Formular wird unter *Keyword* die LCSC-Teilenummer `C2443674` eingetragen und unter *Providers* `LCSC`. Ein Klick auf den Button *Search* listet als Resultat das gewünschte Bauteil.
 
 Mit dem Button *+* am rechten Ende der Zeile wird ein Dialog *Create new part* aufgelegt, bei dem das Formular mit den Informationen der LCSC-Website gefüllt wurde. Die einzelnen Felder können jetzt auf Plausibilität/Korrektheit geprüft werden.
 
 Als interne PartDB-ID werde hier beispielsweise die 7 zugeteilt. Im Webformular steht diese Nummer dann oben rechts in der Titelzeile des blauen Bereichs, in Klammern gefolgt von der noch einzutragenen IPN (siehe unten). In der Listenansicht über die Kategorien können mit dem Zahnrad-Aufklappmenü die Felder *ID* und *IPN* aktiviert werden, wenn gewünscht.
 
-Unter *Category* muss die Bauteil-Kategorie angegeben werden. Vorgeschlagen wird der Wert, den der Provider LCSC verwendet: `Circuit Protection -> ESD and Surge Protection (TVS -> ESD)` – wenn dieser String in das Feld kopiert wird, wird in einem Popup vorgeschlagen, die Kategorie anzulegen. Im vorliegenden Fall gibt es ein kleines Problem, weil der Pfeil `->` von PartDB als Ebenentrenner aufgefasst wird, hier kommt er aber beim zweiten Auftreten in den Klammern als Text vor. Dies könnte durch Ändern in `→` umgangen werden, der Eintrag lautet damit also `Circuit Protection -> ESD and Surge Protection (TVS → ESD)`. Allerdings gibt es mit Unicode-Sonderzeichen teilweise Probleme, insofern wäre es sicherer, anstelle `→` hier einfach `/` zu verwenden: `Circuit Protection -> ESD and Surge Protection (TVS / ESD)`. Es wird damit also eine Hauptkategorie `Circiot Protection` angelegt und darunter eine Subkategorie `ESD and Surge Protection (TVS / ESD)`. Darin wird das neue Bauteil insortiert.
+Unter *Category* muss die Bauteil-Kategorie angegeben werden. Vorgeschlagen wird der Wert, den der Provider LCSC verwendet: `Circuit Protection -> ESD and Surge Protection (TVS -> ESD)` – wenn dieser String in das Feld kopiert wird, wird in einem Popup vorgeschlagen, die Kategorie anzulegen. Im vorliegenden Fall gibt es ein kleines Problem, weil der Pfeil `->` von PartDB als Ebenentrenner aufgefasst wird, hier kommt er aber beim zweiten Auftreten in den Klammern als Text vor. Dies könnte durch Ändern in `→` umgangen werden, der Eintrag lautet damit also `Circuit Protection -> ESD and Surge Protection (TVS → ESD)`. Allerdings gibt es mit Unicode-Sonderzeichen teilweise Probleme, insofern wäre es sicherer, anstelle `→` hier einfach `/` zu verwenden: `Circuit Protection -> ESD and Surge Protection (TVS / ESD)`. Es wird damit also eine Hauptkategorie `Circiot Protection` angelegt und darunter eine Subkategorie `ESD and Surge Protection (TVS / ESD)`. Darin wird das neue Bauteil einsortiert.
 
-Unter *Internal Part Number (IPN)* wird noch die `C2443674`, also die LCSC-Teilenummer aus unserer Tabelle, eingetragen. Das gepatchte Fabrication Toolkit übernimmt dieses Feld, das in KiCad als *Part-DB IPB* erscheint, später als *LCSC Part #* in die BOM (Datei `bom.csv`).
+Unter *Internal Part Number (IPN)* wird noch die `C2443674`, also die LCSC-Teilenummer aus unserer Tabelle, eingetragen. Das gepatchte Fabrication Toolkit übernimmt dieses Feld, das in KiCad als *Part-DB IPN* erscheint, später als *LCSC Part #* in die BOM (Datei `bom.csv`).
 
 Unter *Attachments* kann als *Preview Image* ein Foto ausgewählt werden, falls vorhanden (hier gibt es keins). Unter *EDA Information* kann noch als *Reference prefix* z.B. `U` (oder `D`??) eingetragen werden, ein *Value* wird hier nicht benötigt. Es fehlen nun noch das *KiCad schematic symbol* und der *KiCad footprint*.
 
@@ -121,8 +121,6 @@ Es fehlt noch die LCSC-Teilenummer. Diese ist in PartDB bekannt, wird aber offen
 
 Aus diesem Grund wird jetzt manuell aus der Gruppe *Purchase information* unter *Supplier* `LCSC` der Wert des Feldes *Supplier part number*, hier im Beispiel also `C2443674`, kopiert und in der Gruppe *Advanced* in das Feld *Internal Part Number (IPN)* eingetragen.
 
-**Achtung:** *Diese Verwendung des Feldes IPN kollidiert mit der für die PartDB-ID*
-
 Mit dem Button *Save changes* wird die Transaktion abgeschlossen.
 
 ### KiCad
@@ -137,7 +135,7 @@ Nach dem Wechseln auf den Platineneditor und einem *Update PCB from Schematic* (
 
 ### Fabrication Toolkit
 
-**Achtung:** Fabrication Toolkit findet in der offiziellen Version lediglich die MPN, also im Beispiel `CPDT6-5V0UPC-HF` als vermeintliche LCSC Part Number. Hier ist die oben erwähnte Softwareanpassung des Plugins notwendig, damit stattdessen die IPN verwendet wird. Nach dem Patch wird nun zuerst das Feld *IPN* geprüft, erst danach die anderen.
+**Achtung:** Fabrication Toolkit findet in der offiziellen Version lediglich die MPN, also im Beispiel `CPDT6-5V0UPC-HF`, als vermeintliche LCSC Part Number. Hier ist die oben erwähnte Softwareanpassung des Plugins notwendig, damit stattdessen die IPN verwendet wird. Nach dem Patch wird nun zuerst das Feld *IPN* geprüft, erst danach die anderen.
 
 Wenn es für das Plugin eine neue Version (> v5.1.0) gibt, muss der Patch nach einem Update mindestens erneut installiert werden, eventuell ist auch eine Anpassung notwendig.
 
