@@ -11,3 +11,9 @@ template/B7Template/fp-info-cache
 test/B7Test/B7Test-backups/
 test/B7Test/fp-info-cache
 
+
+*.bak
+
+test/B7Test/fabrication-toolkit-options.json
+
+test/B7Test/production/

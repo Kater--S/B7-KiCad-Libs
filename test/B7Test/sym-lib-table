@@ -1,0 +1,5 @@
+(sym_lib_table
+  (version 7)
+  (lib (name "B7_Symbols")(type "KiCad")(uri "${KICAD9_3RD_PARTY}/B7-KiCad-Libs/libs/B7.kicad_sym")(options "")(descr "B7 symbols"))
+  (lib (name "B7_PartDB")(type "HTTP")(uri "${KICAD9_3RD_PARTY}/B7-KiCad-Libs/libs/partsdb-midnight-worker-de.kicad_httplib")(options "")(descr "B7 PartDB"))
+)
