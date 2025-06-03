@@ -142,3 +142,7 @@ Wenn es für das Plugin eine neue Version (> v5.1.0) gibt, muss der Patch nach e
 Für PartDB wurde ein Issue eingestellt, das eine Funktion vorschlägt, um weitere Felder ins API zu übernehmen. Wenn dies implementiert wird, werden sowohl das manuelle Eintragen der Teilenummer als auch der Patch voraussichtlich überflüssig.
 
 Im PCB-Editor von KiCad kann das Fabrication Toolkit über das entsprechende Icon aufgerufen werden. Es erscheint ein Dialog mit weiteren Optionen (siehe Dokumentation zum Toolkit) und einem Button *Generate*, über den die Erzeugung der Produktionsdateien gestartet wird.
+
+#### Lösungsansatz
+
+Ein externes Tool (PartDB Helper) wurde erstellt, das das PartDB-API verwendet, um halbautomatisch bei allen erfassten Bauteilen die LCSC-Bestellnummer in das Feld IPN einzutragen. Das Tool nutzt Flask und erfordert ein Token mit Edit-Berechtigung, um in PartDB die notwendigen Änderungen an den Bauteildaten durchführen zu können. Nähere Informationen im README und dem Benutzerhandbuch.
