@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block title %}Willkommen bei PartDB Helper{% endblock %}
+
+{% block content %}
+    <p>Die Anwendung wird sich mit folgender PartDB-Instanz verbinden:</p>
+    <p class="partdb-url">{{ partdb_url }}</p>
+    <form method="post">
+        <button type="submit">Mit PartDB verbinden</button>
+    </form>
+{% endblock %} 

@@ -1,0 +1,3 @@
+
+PARTDB_API_URL = 'http://your-partdb-instance-url/api'
+PARTDB_API_KEY = 'your-api-key' 

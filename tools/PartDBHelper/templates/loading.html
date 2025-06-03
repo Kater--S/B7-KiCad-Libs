@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}Lade Bauteile...{% endblock %}
+
+{% block content %}
+    <div class="loading">
+        <h2>Lade Bauteildetails...</h2>
+        <p>Bitte warte, während die Bauteildetails geladen werden.</p>
+        <p>Geladen: <span id="loaded-parts">0</span>/<span id="total-parts">0</span> Bauteile</p>
+        <div class="progress-bar">
+            <div class="progress" id="progress-bar" style="width: 0%"></div>
+        </div>
+    </div>
+
+    <script>
+        function updateProgress() {
+            fetch('/loading-status')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loaded-parts').textContent = data.loaded_parts;
+                    document.getElementById('total-parts').textContent = data.total_parts;
+                    const progress = (data.loaded_parts / data.total_parts * 100);
+                    document.getElementById('progress-bar').style.width = progress + '%';
+                    
+                    if (data.is_loading) {
+                        setTimeout(updateProgress, 1000);
+                    } else {
+                        window.location.href = '/load-parts';
+                    }
+                });
+        }
+
+        // Start progress updates
+        updateProgress();
+    </script>
+{% endblock %} 

@@ -1,0 +1,212 @@
+body {
+  margin: 10px;
+  padding: 0;
+  color: #444;
+  font-family: "Fira Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.lcsc-part {
+    background-color: #e6ffe6;
+}
+
+.lcsc-empty-ipn {
+    background-color: #fffde6;
+}
+
+.lcsc-different-ipn {
+    background-color: #ffe6cc;
+}
+
+.no-lcsc {
+    background-color: #ffe6e6;
+}
+
+.keine-text {
+    display: inline-block;
+    background-color: #888;
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+/*
+ * Formatting the header area
+ */
+header {
+  background-color: #808080;
+  opacity: 0.9;
+  padding: 1rem 0;
+  cursor: pointer;
+}
+
+header:hover {
+  background-color: #a0a0a0;
+}
+
+header table {
+  width: 100%;
+  border: none;
+  margin: 0;
+}
+
+header table td {
+  border: none;
+  padding: 0;
+}
+
+header table td.logo-cell {
+  width: 64px;
+  padding-left: 20px;
+  vertical-align: middle;
+}
+
+header table td.title-cell {
+  padding-left: 20px;
+  font-size: 2.2em;
+  font-weight: bold;
+  color: #fff;
+  vertical-align: middle;
+}
+
+header table td.version-cell {
+  text-align: right;
+  font-style: italic;
+  padding-right: 20px;
+  padding-top: 30px;
+  vertical-align: bottom;
+}
+
+.header img {
+  float: left;
+  position: relative;
+  margin-top: -25px; 
+  padding: 10px 10px 10px 10px;
+}
+
+.versioninfo {
+  text-align: right;
+  font-style: italic;
+  padding-right: 5px;
+  padding-top: 30px;
+}
+
+/*
+ * Centering the body content
+ */
+.container {
+  margin: 0 auto;
+}
+div.info {
+  padding: 10px 0 30px 0;
+  background-color: #E6E6FA;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+div.home {
+  padding: 10px 0 30px 0;
+  background-color: #E6E6FA;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+div.about {
+  padding: 10px 0 30px 0;
+  background-color: #E6E6FA;
+  -webkit-border-radius: 6px;
+     -moz-border-radius: 6px;
+          border-radius: 6px;
+}
+h2 {
+  font-size: 1.7em;
+  margin-top: 40px;
+  text-align: left;
+}
+h3 {
+  font-size: 1.7em;
+  font-weight: 100;
+  margin-top: 30px;
+  text-align: left;
+  color: #999;
+}
+
+samp {
+  font-size: 120%;
+}
+
+.menu {
+  float: right;
+  margin-top: 8px;
+}
+.menu li {
+  display: inline;
+}
+.menu li + li {
+  margin-left: 35px;
+}
+.menu li a {
+  color: #444;
+  text-decoration: none;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 20px 0;
+}
+
+th, td {
+  padding: 10px;
+  vertical-align: top;
+  border: 1px solid #ccc;
+}
+
+th {
+  background-color: #f5f5f5;
+  font-weight: bold;
+  text-align: left;
+}
+
+table.noline {
+  border-collapse: collapse;
+  border: 0px;
+  vertical-align: top;
+}
+
+button {
+  font-family: "Fira Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 12pt;
+}
+
+.partdb-url {
+    font-family: 'Fira Mono', monospace;
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 4px;
+    margin: 10px 0;
+    word-break: break-all;
+}
+
+.loading {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 4px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 10px;
+}
+
+.progress {
+    height: 100%;
+    background-color: #81A2DE;
+    transition: width 0.3s ease-in-out;
+}
