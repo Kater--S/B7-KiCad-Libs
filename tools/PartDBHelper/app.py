@@ -235,6 +235,8 @@ def load_parts():
             return handle_copy_to_ipn()
         elif action == 'overwrite_ipn':
             return handle_overwrite_ipn()
+        elif action == 'refresh':
+            return handle_load_parts()
     
     if loading_state['is_loading']:
         return redirect(url_for('index'))

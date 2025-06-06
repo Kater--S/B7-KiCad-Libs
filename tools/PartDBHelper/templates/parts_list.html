@@ -12,34 +12,20 @@
     </div>
     {% endif %}
 
-    <h2>Übersicht aller Bauteile</h2>
-    <table border="1">
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>IPN</th>
-            <th>Anbieter-ID (LCSC)</th>
-            <th>Lieferant</th>
-            <th>Lieferanten-Artikelnummer</th>
-        </tr>
-        {% for part in parts %}
-        <tr {% if part.provider_id and part.ipn == part.provider_id %}class="lcsc-part"{% elif part.provider_id and not part.ipn %}class="lcsc-empty-ipn"{% elif part.provider_id and part.ipn and part.ipn != part.provider_id %}class="lcsc-different-ipn"{% elif not part.provider_id %}class="no-lcsc"{% endif %}>
-            <td>{{ part.id }}</td>
-            <td>{{ part.name }}</td>
-            <td>{% if part.ipn %}{{ part.ipn }}{% else %}<span class="keine-text">keine</span>{% endif %}</td>
-            <td>{{ part.provider_id }}</td>
-            <td>{{ part.supplier_name }}</td>
-            <td>{{ part.supplier_partnr }}</td>
-        </tr>
-        {% endfor %}
-    </table>
+    <div class="action-bar">
+        <form method="post" action="{{ url_for('load_parts') }}" style="display: inline;">
+            <input type="hidden" name="action" value="refresh">
+            <button type="submit" class="refresh-button">🔄 Liste aktualisieren</button>
+        </form>
+    </div>
 
-    <h2>LCSC Anbieter-ID in der IPN</h2>
-    <p>{{ lcsc_in_ipn_count }} Bauteil{% if lcsc_in_ipn_count != 1 %}e{% endif %} {% if lcsc_in_ipn_count == 1 %}hat{% else %}haben{% endif %} die LCSC Anbieter-ID bereits in der IPN.</p>
+    <div class="tabs">
+        <button class="tab-button active" onclick="switchTab('lcsc-tab')">LCSC/IPN Verwaltung</button>
+        <button class="tab-button" onclick="switchTab('kicad-tab')">KiCad Symbole & Footprints</button>
+    </div>
 
-    <h2>Bauteile mit LCSC Anbieter-ID aber leerer IPN</h2>
-    {% if empty_ipn_count > 0 %}
-        <p>{{ empty_ipn_count }} Bauteil{% if empty_ipn_count != 1 %}e{% endif %} {% if empty_ipn_count == 1 %}hat{% else %}haben{% endif %} eine LCSC Anbieter-ID aber eine leere IPN.</p>
+    <div id="lcsc-tab" class="tab-content active">
+        <h2>Übersicht aller Bauteile</h2>
         <table border="1">
             <tr>
                 <th>ID</th>
@@ -49,7 +35,7 @@
                 <th>Lieferant</th>
                 <th>Lieferanten-Artikelnummer</th>
             </tr>
-            {% for part in parts_empty_ipn %}
+            {% for part in parts %}
             <tr {% if part.provider_id and part.ipn == part.provider_id %}class="lcsc-part"{% elif part.provider_id and not part.ipn %}class="lcsc-empty-ipn"{% elif part.provider_id and part.ipn and part.ipn != part.provider_id %}class="lcsc-different-ipn"{% elif not part.provider_id %}class="no-lcsc"{% endif %}>
                 <td>{{ part.id }}</td>
                 <td>{{ part.name }}</td>
@@ -60,19 +46,13 @@
             </tr>
             {% endfor %}
         </table>
-        <form method="post" action="{{ url_for('load_parts') }}">
-            <input type="hidden" name="action" value="copy_to_ipn">
-            <button type="submit">In die IPN kopieren</button>
-        </form>
-    {% else %}
-        <p>Kein Bauteil hat eine LCSC Anbieter-ID aber ein leeres IPN-Feld.</p>
-    {% endif %}
 
-    <h2>Bauteile mit LCSC Anbieter-ID aber anderer IPN</h2>
-    {% if non_empty_ipn_count > 0 %}
-        <p>{{ non_empty_ipn_count }} Bauteil{% if non_empty_ipn_count != 1 %}e{% endif %} {% if non_empty_ipn_count == 1 %}hat{% else %}haben{% endif %} eine LCSC Anbieter-ID aber eine IPN mit anderem Inhalt.</p>
-        <form method="post" action="{{ url_for('index') }}">
-            <input type="hidden" name="action" value="overwrite_ipn">
+        <h2>LCSC Anbieter-ID in der IPN</h2>
+        <p>{{ lcsc_in_ipn_count }} Bauteil{% if lcsc_in_ipn_count != 1 %}e{% endif %} {% if lcsc_in_ipn_count == 1 %}hat{% else %}haben{% endif %} die LCSC Anbieter-ID bereits in der IPN.</p>
+
+        <h2>Bauteile mit LCSC Anbieter-ID aber leerer IPN</h2>
+        {% if empty_ipn_count > 0 %}
+            <p>{{ empty_ipn_count }} Bauteil{% if empty_ipn_count != 1 %}e{% endif %} {% if empty_ipn_count == 1 %}hat{% else %}haben{% endif %} eine LCSC Anbieter-ID aber eine leere IPN.</p>
             <table border="1">
                 <tr>
                     <th>ID</th>
@@ -81,9 +61,8 @@
                     <th>Anbieter-ID (LCSC)</th>
                     <th>Lieferant</th>
                     <th>Lieferanten-Artikelnummer</th>
-                    <th>Überschreiben</th>
                 </tr>
-                {% for part in parts_non_empty_ipn %}
+                {% for part in parts_empty_ipn %}
                 <tr {% if part.provider_id and part.ipn == part.provider_id %}class="lcsc-part"{% elif part.provider_id and not part.ipn %}class="lcsc-empty-ipn"{% elif part.provider_id and part.ipn and part.ipn != part.provider_id %}class="lcsc-different-ipn"{% elif not part.provider_id %}class="no-lcsc"{% endif %}>
                     <td>{{ part.id }}</td>
                     <td>{{ part.name }}</td>
@@ -91,46 +70,157 @@
                     <td>{{ part.provider_id }}</td>
                     <td>{{ part.supplier_name }}</td>
                     <td>{{ part.supplier_partnr }}</td>
-                    <td><input type="checkbox" name="overwrite_{{ part.id }}" class="overwrite-checkbox"></td>
                 </tr>
                 {% endfor %}
             </table>
-            <div style="margin: 10px 0;">
-                <label>
-                    <input type="checkbox" id="select-all" onclick="document.querySelectorAll('.overwrite-checkbox').forEach(cb => cb.checked = this.checked)">
-                    Alle überschreiben
-                </label>
-            </div>
-            <button type="submit">IPN für markierte Bauteile überschreiben</button>
-        </form>
-    {% else %}
-        <p>Kein Bauteil hat eine LCSC Anbieter-ID aber eine IPN mit anderem Inhalt.</p>
-    {% endif %}
+            <form method="post" action="{{ url_for('load_parts') }}">
+                <input type="hidden" name="action" value="copy_to_ipn">
+                <button type="submit">In die IPN kopieren</button>
+            </form>
+        {% else %}
+            <p>Kein Bauteil hat eine LCSC Anbieter-ID aber ein leeres IPN-Feld.</p>
+        {% endif %}
 
-    <h2>Bauteile ohne LCSC Anbieter-ID</h2>
-    {% if no_lcsc_count > 0 %}
-        <p>{{ no_lcsc_count }} Bauteil{% if no_lcsc_count != 1 %}e{% endif %} {% if no_lcsc_count == 1 %}hat{% else %}haben{% endif %} noch keine LCSC Anbieter-ID.</p>
-        <table border="1">
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>IPN</th>
-                <th>Lieferant</th>
-                <th>Lieferanten-Artikelnummer</th>
-            </tr>
-            {% for part in parts_no_lcsc %}
-            <tr {% if part.provider_id and part.ipn == part.provider_id %}class="lcsc-part"{% elif part.provider_id and not part.ipn %}class="lcsc-empty-ipn"{% elif part.provider_id and part.ipn and part.ipn != part.provider_id %}class="lcsc-different-ipn"{% elif not part.provider_id %}class="no-lcsc"{% endif %}>
-                <td>{{ part.id }}</td>
-                <td>{{ part.name }}</td>
-                <td>{% if part.ipn %}{{ part.ipn }}{% else %}<span class="keine-text">keine</span>{% endif %}</td>
-                <td>{{ part.supplier_name }}</td>
-                <td>{{ part.supplier_partnr }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    {% else %}
-        <p>Alle Bauteile haben eine LCSC Anbieter-ID.</p>
-    {% endif %}
+        <h2>Bauteile mit LCSC Anbieter-ID aber anderer IPN</h2>
+        {% if non_empty_ipn_count > 0 %}
+            <p>{{ non_empty_ipn_count }} Bauteil{% if non_empty_ipn_count != 1 %}e{% endif %} {% if non_empty_ipn_count == 1 %}hat{% else %}haben{% endif %} eine LCSC Anbieter-ID aber eine IPN mit anderem Inhalt.</p>
+            <form method="post" action="{{ url_for('index') }}">
+                <input type="hidden" name="action" value="overwrite_ipn">
+                <table border="1">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>IPN</th>
+                        <th>Anbieter-ID (LCSC)</th>
+                        <th>Lieferant</th>
+                        <th>Lieferanten-Artikelnummer</th>
+                        <th>Überschreiben</th>
+                    </tr>
+                    {% for part in parts_non_empty_ipn %}
+                    <tr {% if part.provider_id and part.ipn == part.provider_id %}class="lcsc-part"{% elif part.provider_id and not part.ipn %}class="lcsc-empty-ipn"{% elif part.provider_id and part.ipn and part.ipn != part.provider_id %}class="lcsc-different-ipn"{% elif not part.provider_id %}class="no-lcsc"{% endif %}>
+                        <td>{{ part.id }}</td>
+                        <td>{{ part.name }}</td>
+                        <td>{% if part.ipn %}{{ part.ipn }}{% else %}<span class="keine-text">keine</span>{% endif %}</td>
+                        <td>{{ part.provider_id }}</td>
+                        <td>{{ part.supplier_name }}</td>
+                        <td>{{ part.supplier_partnr }}</td>
+                        <td><input type="checkbox" name="overwrite_{{ part.id }}" class="overwrite-checkbox"></td>
+                    </tr>
+                    {% endfor %}
+                </table>
+                <div style="margin: 10px 0;">
+                    <label>
+                        <input type="checkbox" id="select-all" onclick="document.querySelectorAll('.overwrite-checkbox').forEach(cb => cb.checked = this.checked)">
+                        Alle überschreiben
+                    </label>
+                </div>
+                <button type="submit">IPN für markierte Bauteile überschreiben</button>
+            </form>
+        {% else %}
+            <p>Kein Bauteil hat eine LCSC Anbieter-ID aber eine IPN mit anderem Inhalt.</p>
+        {% endif %}
+
+        <h2>Bauteile ohne LCSC Anbieter-ID</h2>
+        {% if no_lcsc_count > 0 %}
+            <p>{{ no_lcsc_count }} Bauteil{% if no_lcsc_count != 1 %}e{% endif %} {% if no_lcsc_count == 1 %}hat{% else %}haben{% endif %} noch keine LCSC Anbieter-ID.</p>
+            <table border="1">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>IPN</th>
+                    <th>Lieferant</th>
+                    <th>Lieferanten-Artikelnummer</th>
+                </tr>
+                {% for part in parts_no_lcsc %}
+                <tr {% if part.provider_id and part.ipn == part.provider_id %}class="lcsc-part"{% elif part.provider_id and not part.ipn %}class="lcsc-empty-ipn"{% elif part.provider_id and part.ipn and part.ipn != part.provider_id %}class="lcsc-different-ipn"{% elif not part.provider_id %}class="no-lcsc"{% endif %}>
+                    <td>{{ part.id }}</td>
+                    <td>{{ part.name }}</td>
+                    <td>{% if part.ipn %}{{ part.ipn }}{% else %}<span class="keine-text">keine</span>{% endif %}</td>
+                    <td>{{ part.supplier_name }}</td>
+                    <td>{{ part.supplier_partnr }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Alle Bauteile haben eine LCSC Anbieter-ID.</p>
+        {% endif %}
+    </div>
+
+    <div id="kicad-tab" class="tab-content">
+        <h2>KiCad Symbole & Footprints</h2>
+        <div class="kicad-stats">
+            <div class="stat-box">
+                <h3>Symbole</h3>
+                <p class="stat-number">{{ parts_without_symbol|default(0) }}</p>
+                <p class="stat-label">Bauteile ohne Symbol</p>
+            </div>
+            <div class="stat-box">
+                <h3>Footprints</h3>
+                <p class="stat-number">{{ parts_without_footprint|default(0) }}</p>
+                <p class="stat-label">Bauteile ohne Footprint</p>
+            </div>
+        </div>
+
+        <h2>Bauteile ohne KiCad Symbol</h2>
+        {% if parts_without_symbol|default(0) > 0 %}
+            <table border="1">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>IPN</th>
+                    <th>Anbieter-ID (LCSC)</th>
+                    <th>Status</th>
+                </tr>
+                {% for part in parts_without_symbol %}
+                <tr>
+                    <td>{{ part.id }}</td>
+                    <td>{{ part.name }}</td>
+                    <td>{% if part.ipn %}{{ part.ipn }}{% else %}<span class="keine-text">keine</span>{% endif %}</td>
+                    <td>{{ part.provider_id }}</td>
+                    <td>
+                        <select name="symbol_status_{{ part.id }}" class="symbol-status">
+                            <option value="none">Kein Symbol</option>
+                            <option value="in_progress">In Bearbeitung</option>
+                            <option value="done">Symbol erstellt</option>
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Alle Bauteile haben ein KiCad Symbol.</p>
+        {% endif %}
+
+        <h2>Bauteile ohne KiCad Footprint</h2>
+        {% if parts_without_footprint|default(0) > 0 %}
+            <table border="1">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>IPN</th>
+                    <th>Anbieter-ID (LCSC)</th>
+                    <th>Status</th>
+                </tr>
+                {% for part in parts_without_footprint %}
+                <tr>
+                    <td>{{ part.id }}</td>
+                    <td>{{ part.name }}</td>
+                    <td>{% if part.ipn %}{{ part.ipn }}{% else %}<span class="keine-text">keine</span>{% endif %}</td>
+                    <td>{{ part.provider_id }}</td>
+                    <td>
+                        <select name="footprint_status_{{ part.id }}" class="footprint-status">
+                            <option value="none">Kein Footprint</option>
+                            <option value="in_progress">In Bearbeitung</option>
+                            <option value="done">Footprint erstellt</option>
+                        </select>
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Alle Bauteile haben einen KiCad Footprint.</p>
+        {% endif %}
+    </div>
 {% endblock %}
 
 {% block scripts %}
@@ -148,6 +238,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const selectAllCheckbox = document.getElementById('select-all');
     if (selectAllCheckbox) {
         selectAllCheckbox.addEventListener('change', toggleAllCheckboxes);
+    }
+
+    // Tab switching functionality
+    window.switchTab = function(tabId) {
+        // Hide all tab contents
+        document.querySelectorAll('.tab-content').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        
+        // Deactivate all tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.remove('active');
+        });
+        
+        // Show selected tab content
+        document.getElementById(tabId).classList.add('active');
+        
+        // Activate selected tab button
+        document.querySelector(`[onclick="switchTab('${tabId}')"]`).classList.add('active');
     }
 });
 </script>
