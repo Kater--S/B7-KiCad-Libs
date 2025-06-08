@@ -1,3 +1,8 @@
-
+# PartDB API configuration
 PARTDB_API_URL = 'http://your-partdb-instance-url/api'
-PARTDB_API_KEY = 'your-api-key' 
+PARTDB_API_KEY = 'your-api-key'
+
+# KiCad library names
+B7_FOOTPRINT_LIB = "B7_Footprints"
+B7_SYMBOL_LIB = "B7_Symbols" 
+

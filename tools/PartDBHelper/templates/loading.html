@@ -13,6 +13,9 @@
     </div>
 
     <script>
+        // Get the current view from the URL
+        const currentView = window.location.pathname.includes('kicad') ? 'kicad' : 'ipn';
+
         function updateProgress() {
             fetch('/loading-status')
                 .then(response => response.json())
@@ -25,7 +28,8 @@
                     if (data.is_loading) {
                         setTimeout(updateProgress, 1000);
                     } else {
-                        window.location.href = '/load-parts';
+                        // Redirect to the appropriate view based on where we came from
+                        window.location.href = currentView === 'kicad' ? '/kicad-parts' : '/load-parts';
                     }
                 });
         }

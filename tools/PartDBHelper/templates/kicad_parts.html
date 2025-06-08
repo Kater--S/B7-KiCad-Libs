@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block title %}PartDB Helper{% endblock %}
+
+{% block header_title %}PartDB Helper: KiCad-Übersicht{% endblock %}
+
+{% block content %}
+    {% if loading %}
+    <div class="loading">
+        <p>Lade Bauteildetails: {{ loaded_parts }}/{{ total_parts }} Bauteile</p>
+        <div class="progress-bar">
+            <div class="progress" style="width: {{ (loaded_parts / total_parts * 100)|round|int }}%"></div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="action-bar">
+        <form method="post" action="{{ url_for('kicad_parts') }}" style="display: inline;">
+            <input type="hidden" name="action" value="refresh">
+            <button type="submit" class="refresh-button">🔄 Liste aktualisieren</button>
+        </form>
+        <form method="get" action="{{ url_for('load_parts') }}" style="display: inline; margin-left: 10px;">
+            <button type="submit" class="switch-button">↔️ Zu LCSC/IPN Ansicht wechseln</button>
+        </form>
+    </div>
+
+    <h2>KiCad Symbole und Footprints</h2>
+    <p>{{ format_status_message(complete_kicad_count, total_parts) }} vollständige KiCad Informationen.</p>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>IPN</th>
+                <th>Symbol</th>
+                <th>Footprint</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for part in parts %}
+            <tr class="{{ get_kicad_status_class(part) }}">
+                <td>{{ part.id }}</td>
+                <td><a href="https://partdb.midnight-worker.de/en/part/{{ part.id }}/info#extended_info" target="_blank">{{ part.name }}</a></td>
+                <td>{% if format_value(part.ipn) %}{{ part.ipn }}{% else %}<span class="keine-text">kein Eintrag</span>{% endif %}</td>
+                <td>{% if format_value(part.symbol) %}{{ part.symbol }}{% else %}<span class="keine-text">kein Eintrag</span>{% endif %}</td>
+                <td>{% if format_value(part.footprint) %}{{ part.footprint }}{% else %}<span class="keine-text">kein Eintrag</span>{% endif %}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %} 

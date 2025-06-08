@@ -3,7 +3,7 @@ import requests
 import json
 import time
 import threading
-from config import PARTDB_API_URL, PARTDB_API_KEY
+from config import PARTDB_API_URL, PARTDB_API_KEY, B7_FOOTPRINT_LIB, B7_SYMBOL_LIB
 
 app = Flask(__name__, static_folder='static')
 
@@ -55,16 +55,31 @@ def get_lcsc_provider_id(part_details):
 
 def get_part_details(part_id):
     """Fetch detailed information for a specific part."""
-    response = requests.get(f'{PARTDB_API_URL}/parts/{part_id}', headers={'Authorization': f'Bearer {PARTDB_API_KEY}'})
-    print(f"\nResponse from GET /parts/{part_id}")
+    response = requests.get(f'{PARTDB_API_URL}/api/parts/{part_id}', headers={'Authorization': f'Bearer {PARTDB_API_KEY}'})
+    print(f"\nResponse from GET /api/parts/{part_id}")
     if response.status_code == 200:
         return response.json()
+    return None
+
+def get_kicad_details(part_id):
+    """Fetch KiCad-specific information for a part."""
+    response = requests.get(f'{PARTDB_API_URL}/en/kicad-api/v1/parts/{part_id}.json', 
+                          headers={'Authorization': f'Bearer {PARTDB_API_KEY}'})
+    print(f"\nResponse from GET {PARTDB_API_URL}/en/kicad-api/v1/parts/{part_id}.json")
+    if response.status_code == 200:
+        if part_id == 2:
+            print(json.dumps(response.json(), indent=2))
+        print(f"Symbol: {response.json().get('symbolIdStr')}")
+        print(f"Footprint: {response.json().get('fields').get('footprint').get('value')}")
+        return response.json()
+    else:
+        print(f"Failed to get KiCad details for part {part_id}, status code: {response.status_code}")
     return None
 
 def update_part_ipn(part_id, provider_id):
     """Update a part's IPN with the LCSC provider ID."""
     update_response = requests.patch(
-        f'{PARTDB_API_URL}/parts/{part_id}',
+        f'{PARTDB_API_URL}/api/parts/{part_id}',
         headers={
             'Authorization': f'Bearer {PARTDB_API_KEY}',
             'Content-Type': 'application/merge-patch+json'
@@ -78,7 +93,7 @@ def update_part_ipn(part_id, provider_id):
 
 def get_all_parts():
     """Fetch all parts from the API."""
-    response = requests.get(f'{PARTDB_API_URL}/parts', headers={'Authorization': f'Bearer {PARTDB_API_KEY}'})
+    response = requests.get(f'{PARTDB_API_URL}/api/parts', headers={'Authorization': f'Bearer {PARTDB_API_KEY}'})
     print("\nResponse from GET /parts")
     if response.status_code == 200:
         data = response.json()
@@ -104,11 +119,15 @@ def load_parts_background():
     parts_info = []
     for part in parts:
         part_details = get_part_details(part['id'])
+        kicad_details = get_kicad_details(part['id'])
         loading_state['loaded_parts'] += 1
+        
         if part_details:
             provider_id = get_lcsc_provider_id(part_details)
             supplier_name = None
             supplier_partnr = None
+            symbol = None
+            footprint = None
 
             # Get supplier information
             if 'orderdetails' in part_details:
@@ -128,13 +147,25 @@ def load_parts_background():
                             supplier_name = 'LCSC'
                             supplier_partnr = orderdetails.get('supplierpartnr')
 
+            # Get KiCad information
+            if kicad_details:
+                print("KiCad Details:")
+                symbol = kicad_details.get('symbolIdStr')
+                #if 'fields' in kicad_details and 'footprint' in kicad_details['fields']:
+                #    footprint = kicad_details['fields']['footprint'].get('value')
+                footprint = kicad_details.get('fields').get('footprint').get('value')
+                print(f"Symbol: {symbol}")
+                print(f"Footprint: {footprint}")
+
             part_info = {
                 'id': part_details.get('id'),
                 'name': part_details.get('name'),
                 'ipn': part_details.get('ipn'),
                 'provider_id': provider_id,
                 'supplier_name': supplier_name,
-                'supplier_partnr': supplier_partnr
+                'supplier_partnr': supplier_partnr,
+                'symbol': symbol,
+                'footprint': footprint
             }
             parts_info.append(part_info)
 
@@ -148,6 +179,13 @@ def loading_status():
         'is_loading': loading_state['is_loading'],
         'total_parts': loading_state['total_parts'],
         'loaded_parts': loading_state['loaded_parts']
+    })
+
+@app.route('/get-current-view')
+def get_current_view():
+    """Return the current view from session."""
+    return jsonify({
+        'view': session.get('current_view', 'ipn')  # Default to IPN view if not set
     })
 
 @app.route('/', methods=['GET', 'POST'])
@@ -224,6 +262,78 @@ def handle_load_parts():
     # Show loading page
     return render_template('loading.html', version=VERSION)
 
+def handle_refresh_ipn():
+    """Handle refreshing the IPN view."""
+    return handle_load_parts()
+
+def handle_refresh_kicad():
+    """Handle refreshing the KiCad view."""
+    return handle_load_parts()
+
+def has_correct_kicad_prefixes(part):
+    """Check if a part has both correct KiCad library prefixes."""
+    return (part['symbol'] and part['footprint'] and
+            part['symbol'].startswith(f'{B7_SYMBOL_LIB}:') and
+            part['footprint'].startswith(f'{B7_FOOTPRINT_LIB}:'))
+
+def has_one_correct_prefix(part):
+    """Check if a part has exactly one correct KiCad library prefix."""
+    symbol_correct = part['symbol'] and part['symbol'].startswith(f'{B7_SYMBOL_LIB}:')
+    footprint_correct = part['footprint'] and part['footprint'].startswith(f'{B7_FOOTPRINT_LIB}:')
+    return (symbol_correct or footprint_correct) and not (symbol_correct and footprint_correct)
+
+def format_status_message(complete_count, total_count):
+    """Format the status message about complete KiCad information."""
+    if total_count == 1:
+        return f"{complete_count} von {total_count} Bauteil hat"
+    return f"{complete_count} von {total_count} Bauteilen haben"
+
+def format_value(value):
+    """Format a value for display, showing 'kein Eintrag' for empty values."""
+    return value if value else None
+
+def get_kicad_status_class(part):
+    """Determine the CSS class for a part based on its KiCad status."""
+    if not part['symbol'] or not part['footprint']:
+        return 'missing-both'
+    if has_correct_kicad_prefixes(part):
+        return 'complete-kicad'
+    if has_one_correct_prefix(part):
+        return 'one-correct-prefix'
+    return 'different-prefix'
+
+@app.route('/kicad-parts', methods=['GET', 'POST'])
+def kicad_parts():
+    """Handle the KiCad parts list page and its form submissions."""
+    global loading_state
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'refresh':
+            return handle_refresh_kicad()
+    
+    if loading_state['is_loading']:
+        return redirect(url_for('index'))
+
+    parts_info = loading_state['parts_info']
+    
+    # Count parts with correct KiCad information prefixes
+    complete_kicad_count = sum(1 for part in parts_info if has_correct_kicad_prefixes(part))
+
+    return render_template('kicad_parts.html',
+        version=VERSION,
+        parts=parts_info,
+        complete_kicad_count=complete_kicad_count,
+        loading=loading_state['is_loading'],
+        loaded_parts=loading_state['loaded_parts'],
+        total_parts=loading_state['total_parts'],
+        b7_footprint_lib=B7_FOOTPRINT_LIB,
+        b7_symbol_lib=B7_SYMBOL_LIB,
+        get_kicad_status_class=get_kicad_status_class,
+        format_value=format_value,
+        format_status_message=format_status_message
+    )
+
 @app.route('/load-parts', methods=['GET', 'POST'])
 def load_parts():
     """Handle the parts list page and its form submissions."""
@@ -236,7 +346,7 @@ def load_parts():
         elif action == 'overwrite_ipn':
             return handle_overwrite_ipn()
         elif action == 'refresh':
-            return handle_load_parts()
+            return handle_refresh_ipn()
     
     if loading_state['is_loading']:
         return redirect(url_for('index'))
@@ -267,10 +377,14 @@ def load_parts():
         parts_non_empty_ipn=parts_non_empty_ipn,
         non_empty_ipn_count=non_empty_ipn_count,
         parts_no_lcsc=parts_no_lcsc,
-        no_lcsc_count=no_lcsc_count
+        no_lcsc_count=no_lcsc_count,
+        loading=loading_state['is_loading'],
+        loaded_parts=loading_state['loaded_parts'],
+        total_parts=loading_state['total_parts']
     )
 
 def main():
+    app.secret_key = 'your-secret-key-here'  # Required for session
     app.run(debug=True)
 
 if __name__ == '__main__':

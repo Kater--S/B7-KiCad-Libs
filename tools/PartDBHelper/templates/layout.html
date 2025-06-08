@@ -14,7 +14,7 @@
           <td class="logo-cell">
             <img src="{{ url_for('static', filename= 'img/logo_tr_64px.png') }}" alt="logo">
           </td>
-          <td class="title-cell">PartDB Helper</td>
+          <td class="title-cell">{% block header_title %}PartDB Helper{% endblock %}</td>
           <td class="version-cell">Version 1.0</td>
         </tr>
       </table>

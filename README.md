@@ -119,7 +119,7 @@ Unter *KiCad footprint* wird analog `B7_Footprints:SOT-23-6` eingetragen.
 **Problem:**
 Es fehlt noch die LCSC-Teilenummer. Diese ist in PartDB bekannt, wird aber offenbar nicht über das API in KiCad übernommen. Manuell kann sie auf KiCad-Seite auch nicht eingetragen werden, weil die B7_PartDB-Library read-only ist, d.h. Änderungen können nur auf PartDB-Seite vorgenommen werden.
 
-Aus diesem Grund wird jetzt manuell aus der Gruppe *Purchase information* unter *Supplier* `LCSC` der Wert des Feldes *Supplier part number*, hier im Beispiel also `C2443674`, kopiert und in der Gruppe *Advanced* in das Feld *Internal Part Number (IPN)* eingetragen.
+Aus diesem Grund kann jetzt manuell aus der Gruppe *Purchase information* unter *Supplier* `LCSC` der Wert des Feldes *Supplier part number*, hier im Beispiel also `C2443674`, kopiert und in der Gruppe *Advanced* in das Feld *Internal Part Number (IPN)* eingetragen werden. Alternativ kann dies mit dem **PartDB Helper** (s.u.) zu einem späteren Zeitpunkt für alle Bauteile erfolgen, bei denen der IPN-Eintrag noch fehlt.
 
 Mit dem Button *Save changes* wird die Transaktion abgeschlossen.
 
@@ -127,7 +127,9 @@ Mit dem Button *Save changes* wird die Transaktion abgeschlossen.
 
 Im Testprojekt kann in KiCad nun geprüft werden, ob das Bauteil korrekt angelegt wurde:
 
-Im Schaltplaneditor wird *Place Symbols* (Taste A) aufgerufen und in der Suchmaske `CPDT` eingegeben. Als Fundstelle wird – neben der reinen Symbol-Bibliothek `B7_Symbols` – die PartDB-Bibliothek `B7_PartDB - Circuit Protection` angegeben, also mit der Unterkategorie der ersten Stufe. Darin gibt es den Eintrag `CPDT6-5V0UPC-HF` mit passendem Symbol und Footprint in der Vorschau. Nach Bestätigen mit *OK* kann das Bauteil im Schaltplan platziert werden.
+Im Schaltplaneditor wird *Place Symbols* (Taste A) aufgerufen und in der Suchmaske `CPDT` eingegeben. Als Fundstelle wird – neben der reinen Symbol-Bibliothek `B7_Symbols` – die PartDB-Bibliothek `B7_PartDB - Circuit Protection` angegeben, also mit der Unterkategorie der ersten Stufe; tiefere Stufen werden hier nicht angezeigt, die Einträge stehen alle in der Unterkategorie der ersten Stufe. Dort gibt es den Eintrag `CPDT6-5V0UPC-HF` mit passendem Symbol und Footprint in der Vorschau. Nach Bestätigen mit *OK* kann das Bauteil im Schaltplan platziert werden.
+
+**Anmerkung:** Falls das Symbol im Schaltplan grau umrahmt und mit einem Symbol einer Welle (~) im Kreis angezeigt wird, liegt das daran, dass für das Bauteil das Merkmal *exclude from simulation* gesetzt und in KiCad der Menüpunkt *View → Mark items which are excluded from simulation* aktiv ist. Durch Deaktivieren des Menüpunkts kann der Marker unsichtbar geschaltet werden.
 
 Ein Doppelklick auf das Symbol öffnet den Dialog *Symbol Properties*. Dort können die verschiedenen Parameter überprüft werden. Die LCSC-Teilenummer wird unter *Part-DB IPN* angezeigt.
 
@@ -143,6 +145,10 @@ Für PartDB wurde ein Issue eingestellt, das eine Funktion vorschlägt, um weite
 
 Im PCB-Editor von KiCad kann das Fabrication Toolkit über das entsprechende Icon aufgerufen werden. Es erscheint ein Dialog mit weiteren Optionen (siehe Dokumentation zum Toolkit) und einem Button *Generate*, über den die Erzeugung der Produktionsdateien gestartet wird.
 
-#### Lösungsansatz
+#### Lösungsansatz: PartDB Helper
 
-Ein externes Tool (PartDB Helper) wurde erstellt, das das PartDB-API verwendet, um halbautomatisch bei allen erfassten Bauteilen die LCSC-Bestellnummer in das Feld IPN einzutragen. Das Tool nutzt Flask und erfordert ein Token mit Edit-Berechtigung, um in PartDB die notwendigen Änderungen an den Bauteildaten durchführen zu können. Nähere Informationen im README und dem Benutzerhandbuch.
+Ein externes Tool (PartDB Helper) wurde erstellt, das das PartDB-API verwendet, um halbautomatisch bei allen erfassten Bauteilen die LCSC-Bestellnummer in das Feld IPN einzutragen. Das Tool nutzt Flask und erfordert ein Token mit Edit-Berechtigung, um in PartDB die notwendigen Änderungen an den Bauteildaten durchführen zu können.
+
+Außerdem kann das Tool verwendet werden, um Bauteile mit fehlenden Symbol- und Footprint-Einträgen zu finden.
+
+Nähere Informationen im README und dem Benutzerhandbuch.

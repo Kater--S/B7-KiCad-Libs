@@ -233,93 +233,41 @@ button {
     background-color: #6B8BC4;
 }
 
-/* Tab styles */
-.tabs {
-    margin: 20px 0;
-    border-bottom: 2px solid #ccc;
-}
-
-.tab-button {
-    background: none;
+.switch-button {
+    background-color: #81A2DE;
+    color: white;
     border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    color: #666;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.3s ease;
-}
-
-.tab-button:hover {
-    color: #81A2DE;
-}
-
-.tab-button.active {
-    color: #81A2DE;
-    border-bottom-color: #81A2DE;
-}
-
-.tab-content {
-    display: none;
-    padding: 20px 0;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* KiCad section styles */
-.kicad-stats {
-    display: flex;
-    gap: 20px;
-    margin: 20px 0;
-}
-
-.stat-box {
-    flex: 1;
-    background-color: #f5f5f5;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-}
-
-.stat-box h3 {
-    margin: 0 0 10px 0;
-    color: #666;
-}
-
-.stat-number {
-    font-size: 2.5em;
-    font-weight: bold;
-    color: #81A2DE;
-    margin: 0;
-}
-
-.stat-label {
-    color: #666;
-    margin: 5px 0 0 0;
-}
-
-.symbol-status,
-.footprint-status {
-    padding: 5px;
+    padding: 8px 16px;
     border-radius: 4px;
-    border: 1px solid #ccc;
-    background-color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s ease;
 }
 
-.symbol-status option[value="none"],
-.footprint-status option[value="none"] {
-    color: #ff6b6b;
+.switch-button:hover {
+    background-color: #6B8BC4;
 }
 
-.symbol-status option[value="in_progress"],
-.footprint-status option[value="in_progress"] {
-    color: #ffd93d;
+.missing-both {
+    background-color: #ffe6e6;
 }
 
-.symbol-status option[value="done"],
-.footprint-status option[value="done"] {
-    color: #6bff6b;
+.missing-symbol {
+    background-color: #fffde6;
+}
+
+.missing-footprint {
+    background-color: #ffe6cc;
+}
+
+.complete-kicad {
+    background-color: #e6ffe6;
+}
+
+.different-prefix {
+    background-color: #ffe6cc;
+}
+
+.one-correct-prefix {
+    background-color: #fffde6;
 }
